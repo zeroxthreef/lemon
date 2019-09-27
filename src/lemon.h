@@ -15,6 +15,8 @@ struct lobject;
 struct lemon {
 	long l_random;
 
+	void *l_user_data;
+
 	void *l_arena;
 	void *l_input;
 	void *l_lexer;
