@@ -36,26 +36,35 @@ input_set_file(struct lemon *lemon, const char *filename)
 	long size;
 	struct input *input;
 
-	fp = fopen(filename, "r");
-	if (!fp) {
-		return 0;
+	if(lemon->l_import_method)
+	{
+		input = lemon->l_input;
+		input->buffer = lemon->l_import_method(lemon, filename);
+		input->size = strlen(input->buffer);
 	}
+	else
+	{
+		fp = fopen(filename, "r");
+		if (!fp) {
+			return 0;
+		}
 
-	fseek(fp, 0, SEEK_END);
+		fseek(fp, 0, SEEK_END);
 
-	input = lemon->l_input;
-	input->size = ftell(fp) + 1;
-	input->buffer = arena_alloc(lemon, lemon->l_arena, input->size);
-	memset(input->buffer, 0, input->size);
+		input = lemon->l_input;
+		input->size = ftell(fp) + 1;
+		input->buffer = arena_alloc(lemon, lemon->l_arena, input->size);
+		memset(input->buffer, 0, input->size);
 
-	fseek(fp, 0, SEEK_SET);
-	size = fread(input->buffer, 1, (size_t)input->size, fp);
-	if (size != input->size - 1) {
+		fseek(fp, 0, SEEK_SET);
+		size = fread(input->buffer, 1, (size_t)input->size, fp);
+		if (size != input->size - 1) {
+			fclose(fp);
+
+			return 0;
+		}
 		fclose(fp);
-
-		return 0;
 	}
-	fclose(fp);
 
 	input->filename = arena_alloc(lemon, lemon->l_arena, PATH_MAX);
 	strncpy(input->filename, filename, PATH_MAX);

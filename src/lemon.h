@@ -16,6 +16,7 @@ struct lemon {
 	long l_random;
 
 	void *l_user_data;
+	char *(* l_import_method)(struct lemon *lemon, char *filename);
 
 	void *l_arena;
 	void *l_input;
